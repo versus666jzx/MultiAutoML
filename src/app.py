@@ -75,14 +75,16 @@ with st.sidebar:
 					'F1',
 					'Accuracy',
 					'ROC-AUC'
-				]
+				],
+				default='F1'
 			)
 
 			timeout_learn = st.number_input(
 				label='Таймаут обучения (сек)',
 				min_value=10,
 				max_value=7200,
-				step=10
+				step=10,
+				value=3600
 			)
 
 if task_type == 'Бинарная классификация':
