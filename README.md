@@ -11,7 +11,13 @@ docker-compose up -d
 
 ### На хосте
 1. Склонируйте репозиторий и перейдите в директорию с проектом
-2. Выполните
+2. Установите необходимые зависимости
+
+```bash
+pip install -r requirements.txt
+```
+
+3. Выполните
 
 ```bash
 streamlit rum src/app.py
