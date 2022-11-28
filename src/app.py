@@ -1,5 +1,3 @@
-import numpy as np
-import pandas as pd
 import streamlit as st
 
 from utils import data_utils, multi_light_auto_ml

@@ -1,14 +1,11 @@
-from typing import Any, List, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 import numpy as np
+import streamlit as st
 from lightautoml.automl.presets.tabular_presets import TabularAutoML
 from lightautoml.tasks import Task
-import streamlit as st
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 
 from utils import data_utils
-
 
 class MultiAutoML:
 	def __init__(self, models):
