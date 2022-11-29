@@ -22,3 +22,5 @@ pip install -r requirements.txt
 ```bash
 streamlit rum src/app.py
 ```
+
+4. Перейдите по адресу http://localhost/
