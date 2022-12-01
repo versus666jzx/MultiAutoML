@@ -3,3 +3,4 @@ numpy==1.23.5
 streamlit==1.15.1
 lightautoml[all]==0.3.7.3
 pandas==1.4.3
+plotly==5.11.0

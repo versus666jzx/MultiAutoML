@@ -1,9 +1,9 @@
 from typing import List, Tuple, Union
 
-import pandas as pd
 import numpy as np
-import streamlit as st
+import pandas as pd
 import plotly.express as px
+import streamlit as st
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import (
 	# классификация
@@ -22,8 +22,7 @@ from sklearn.metrics import (
 	r2_score,
 	mean_absolute_percentage_error,
 	# AUC
-	roc_curve,
-	auc
+	roc_curve
 )
 
 GLOBAL_RS = 25

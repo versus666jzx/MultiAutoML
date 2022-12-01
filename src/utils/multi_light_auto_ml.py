@@ -1,16 +1,11 @@
 from typing import Any, Dict, List, Optional
 
-from fastapi import FastAPI
-import uvicorn
 import numpy as np
 import streamlit as st
 from lightautoml.automl.presets.tabular_presets import TabularAutoML
 from lightautoml.tasks import Task
 
 from utils import data_utils
-
-
-app = FastAPI()
 
 
 class MultiAutoML:
