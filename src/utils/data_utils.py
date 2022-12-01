@@ -214,13 +214,8 @@ def plot_pr_curve(target_valid: pd.DataFrame, probabilities_one_valid: pd.DataFr
 		fig = px.area(
 			x=fpr, y=tpr,
 			title=f'Precision Recall Curve для модели {model}',
-			labels=dict(x='False Positive Rate', y='True Positive Rate'),
+			labels=dict(x='Recall', y='Precision'),
 			width=700, height=500
-		)
-		# линия предсказания случайной модели
-		fig.add_shape(
-			type='line', line=dict(dash='dash'),
-			x0=0, x1=1, y0=0, y1=1
 		)
 
 		st.plotly_chart(fig)

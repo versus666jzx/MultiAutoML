@@ -52,20 +52,12 @@ with st.sidebar:
 			train, test = data_utils.preprocess_data(data=data)
 
 		if train is not None:
-			if task_type == 'Бинарная классификация' or task_type == 'Регрессия':
-				# пользователь должен выбрать таргет
-				target_column_name = st.selectbox(
-					label='Выберите колонку с таргетом',
-					options=train.columns
-				)
-
-			elif task_type == 'Мультиклассовая классификация':
-				# пользователь должен выбрать несколько таргетов
-				target_column_name = st.multiselect(
-					label='Выберите колонки с таргетом',
-					options=train.columns
-				)
-			# при необходимости можно дропнуть колонки из обучающей и тестовой выборки
+			# колонка с таргетом
+			target_column_name = st.selectbox(
+				label='Выберите колонки с таргетом',
+				options=train.columns
+			)
+			# колонки, которые нужно исключить из обучения
 			columns_to_drop = st.multiselect(
 				label='Выберите какую колонку исключить',
 				options=train.columns
@@ -180,6 +172,10 @@ if task_type == 'Мультиклассовая классификация':
 		st.write(train.sample(7))
 		train[target_column_name] = train[target_column_name].astype('int')
 		test[target_column_name] = test[target_column_name].astype('int')
+		if (train[target_column_name].value_counts() < 5).any():
+			st.error(f'Количество записей для классов в колонке {target_column_name} должно быть больше 5.')
+			st.stop()
+
 	start_automl = st.button('Запустить AutoML')
 	if start_automl:
 		# создаем инстансы базового класса модели
