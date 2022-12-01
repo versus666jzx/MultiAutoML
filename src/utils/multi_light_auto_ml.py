@@ -1,11 +1,17 @@
 from typing import Any, Dict, List, Optional
 
+from fastapi import FastAPI
+import uvicorn
 import numpy as np
 import streamlit as st
 from lightautoml.automl.presets.tabular_presets import TabularAutoML
 from lightautoml.tasks import Task
 
 from utils import data_utils
+
+
+app = FastAPI()
+
 
 class MultiAutoML:
 	def __init__(self, models):
@@ -61,7 +67,13 @@ class MultiAutoML:
 	def predict(self, X) -> Dict:
 		res = {}
 		for model in self.models:
-			res[model.model_name] = np.round(model.predict(X).data)
+			res[model.model_name] = model.predict(X)
+		return res
+
+	def predict_proba(self, X) -> Dict:
+		res = {}
+		for model in self.models:
+			res[model.model_name] = model.predict_proba(X)
 		return res
 
 	def evaluate(self, X, y, metrics: List) -> Optional[Dict[Any, Dict[Any, Any]]]:
@@ -88,8 +100,8 @@ class BaseModel:
 		self,
 		model,
 		model_name: str,
+		task_type: str,
 		columns_to_drop: List[str] = None
-
 
 	):
 		self.model = model
@@ -97,6 +109,7 @@ class BaseModel:
 		self.fitted_model_names = []
 		self.model_name = model_name
 		self.columns_to_drop = columns_to_drop
+		self._task_type = task_type
 		self._is_fitted = False
 
 	@property
@@ -105,34 +118,60 @@ class BaseModel:
 
 	def fit(self, X, y_column_name):
 		# в LightAutoML нет метода fit, поэтому приходится вызывать fit_predict
-		self.fit_predict(X, y_column_name)
-
-	def fit_predict(self, X, y_column_name) -> dict:
 		model = self.model
 		if self.columns_to_drop is None:
 			self.columns_to_drop = []
-		preds = model.fit_predict(
+		model.fit_predict(
 			train_data=X,
 			roles={'target': y_column_name, 'drop': self.columns_to_drop}
 		)
 		self.model = model
 		self._is_fitted = True
+
+	def fit_predict(self, X, y_column_name):
+		self.fit(X, y_column_name)
+		preds = self.predict(X)
 		return preds
 
-	def predict(self, X) -> dict:
+	def predict(self, X):
 		if not self._is_fitted:
-			print(f'Fit {self.model_name} before predict.')
-		# округляем, т.к. LightAutoML возвращает вероятности класса
-		return np.round(self.model.predict(X).data)
+			st.error(f'Fit {self.model_name} before predict.')
+			return
+		if self._task_type == 'binary':
+			# округляем, т.к. LightAutoML возвращает вероятности класса для бинарной классификации
+			return np.round(self.model.predict(X).data[:, 0]).astype('int8')
+		elif self._task_type == 'reg':
+			return self.model.predict(X).data
+		else:  # multiclass
+			# argmax т.к. LightAutoML возвращает ответы в формате ohe
+			return np.argmax(self.model.predict(X).data, axis=1)
+
+	def predict_proba(self, X):
+		if not self._is_fitted:
+			st.error(f'Fit {self.model_name} before predict.')
+			return
+		if self._task_type == 'binary':
+			return self.model.predict(X).data
+		else:
+			st.error(f'Неверный класс задачи {self._task_type} для метода predict_proba. Должен быть "binary"')
+			return None
+
 
 	def evaluate(self, X, y, metrics: list) -> Optional[Dict[Any, Any]]:
 		if not self._is_fitted:
-			print(f'Fit {self.model_name} before evaluate.')
-			return None
-		preds = np.round(self.model.predict(X).data)
+			st.error(f'Fit {self.model_name} before evaluate.')
+			return
+		preds = self.predict(X)
 		res = {}
 		for metric in metrics:
-			res[metric.__name__] = metric(y, preds)
+			if self._task_type == 'multiclass':
+				if metric.__name__ in ['f1_score', 'precision_score', 'recall_score']:
+					res[metric.__name__] = metric(y, preds, average='weighted')
+				else:
+					res[metric.__name__] = metric(y, preds)
+			else:
+				res[metric.__name__] = metric(y, preds)
+
 		return res
 
 
@@ -150,6 +189,35 @@ def create_base_lightautoml_model(
 			timeout=timeout
 		),
 		model_name=model_name,
+		task_type=task_type,
 		columns_to_drop=columns_to_drop
 	)
 	return base_model
+
+
+# @app.post('/binary')
+# def classify(train, test, timeout_learn, columns_to_drop):
+# 	light_automl_base_model = create_base_lightautoml_model(
+# 		model_name='LightAutoML',
+# 		task_type='binary',
+# 		timeout=timeout_learn,
+# 		columns_to_drop=columns_to_drop
+# 	)
+#
+# 	light_automl_base_model_2 = create_base_lightautoml_model(
+# 		model_name='LightAutoML_2',
+# 		task_type='binary',
+# 		timeout=timeout_learn,
+# 		columns_to_drop=columns_to_drop
+# 	)
+# 	# создаем MultiLightAutoML класс из списка базовых классов модели
+# 	multiautoml = MultiAutoML(
+# 		[light_automl_base_model, light_automl_base_model_2]
+# 	)
+# 	# обучаем все базовые модели
+# 	multiautoml.fit(train, target_column_name)
+# 	# получаем предикты всех базовых моделей
+# 	test_pred = multiautoml.predict(test)
+#
+#
+# uvicorn.run(app, host='0.0.0.0', port=8080)
