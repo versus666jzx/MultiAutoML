@@ -123,9 +123,8 @@ if task_type == 'Бинарная классификация':
 		with st.expander(label='Показать графические метрики'):
 			data_utils.get_conflusion_matrix(test[target_column_name], test_pred)
 			probabilities_valid = multiautoml.predict_proba(test)
-			probabilities_one_valid = probabilities_valid
-			data_utils.plot_roc_auc_curve(test[target_column_name], probabilities_one_valid)
-			data_utils.plot_pr_curve(test[target_column_name], probabilities_one_valid)
+			data_utils.plot_roc_auc_curve(test[target_column_name], probabilities_valid)
+			data_utils.plot_pr_curve(test[target_column_name], probabilities_valid)
 
 
 if task_type == 'Регрессия':
