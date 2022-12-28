@@ -1,9 +1,11 @@
 import streamlit as st
 
-from utils import data_utils, multi_light_auto_ml
+from utils import data_utils, multi_light_auto_ml, manual
 
 
 with st.sidebar:
+	# показать инструкцию для юзера
+	show_man = st.checkbox("Показать инструкцию")
 	# объявляем переменные для train и test
 	train = test = None
 	# выбор типа решаемой задачи
@@ -80,6 +82,9 @@ with st.sidebar:
 				value=3600
 			)
 
+if show_man:
+	manual.show_manual()
+
 if task_type == 'Бинарная классификация':
 	data_utils.validate_continue(train, test)
 	if train is not None:
@@ -125,7 +130,6 @@ if task_type == 'Бинарная классификация':
 			probabilities_valid = multiautoml.predict_proba(test)
 			data_utils.plot_roc_auc_curve(test[target_column_name], probabilities_valid)
 			data_utils.plot_pr_curve(test[target_column_name], probabilities_valid)
-
 
 if task_type == 'Регрессия':
 	data_utils.validate_continue(train, test)
