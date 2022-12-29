@@ -4,8 +4,6 @@ from utils import data_utils, multi_light_auto_ml, manual
 
 
 with st.sidebar:
-	# показать инструкцию для юзера
-	show_man = st.checkbox("Показать инструкцию")
 	# объявляем переменные для train и test
 	train = test = None
 	# выбор типа решаемой задачи
@@ -82,8 +80,7 @@ with st.sidebar:
 				value=3600
 			)
 
-if show_man:
-	manual.show_manual()
+manual.show_manual()
 
 if task_type == 'Бинарная классификация':
 	data_utils.validate_continue(train, test)
