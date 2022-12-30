@@ -24,6 +24,43 @@ def show_manual():
         
     В данный момент поддерживаются только данные в csv формате, с разделителем в виде запятой.
     
+    Ниже вы можете загрузить демонстрационные датасеты для 3х разных задач.
+    
+    ---
+    """)
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.download_button(
+            label="Бинарная классификация",
+            data=open("data/binary_classification/data.csv", "r"),
+            file_name = 'binary_classification.csv'
+        )
+        st.write("Целевая колонка: Survived")
+
+    with col2:
+        st.download_button(
+            label="Мультикласс",
+            data=open("data/multiclass/data.csv", "r"),
+            file_name="multiclass_classification.csv"
+        )
+
+        st.write("Целевая колонка: target")
+
+    with col3:
+        st.download_button(
+            label="Регрессия",
+            data=open("data/regression/data.csv", "r"),
+            file_name="regression.csv"
+        )
+
+        st.write("Целевая колонка: target")
+
+
+    st.write("""
+    ---
+    
     ### 4. Выбрать параметры обучения
         
     После успешной загрузки обучающей и тестовой выборки будет предложено выбрать параметры обучения,

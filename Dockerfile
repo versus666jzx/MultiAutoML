@@ -5,5 +5,6 @@ RUN pip install -r requirements.txt && \
     rm requirements.txt && \
     mkdir /opt/multiautoml
 COPY src/ /opt/multiautoml/
+COPY data /opt/multiautoml/data
 WORKDIR /opt/multiautoml
 ENTRYPOINT ["streamlit", "run", "app.py", "--server.port", "80"]
